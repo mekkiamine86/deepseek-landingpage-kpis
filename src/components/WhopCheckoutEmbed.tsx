@@ -38,6 +38,17 @@ export default function WhopCheckoutEmbed({
   }, []);
 
   useEffect(() => {
+    const onBuyClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest?.('.btn-buy')) {
+        setLoaded(true);
+      }
+    };
+    document.addEventListener('click', onBuyClick);
+    return () => document.removeEventListener('click', onBuyClick);
+  }, []);
+
+  useEffect(() => {
     if (!loaded) return;
     if (document.querySelector('script[data-whop-checkout-loader]')) return;
     const script = document.createElement('script');
@@ -47,15 +58,42 @@ export default function WhopCheckoutEmbed({
     document.head.appendChild(script);
   }, [loaded]);
 
+  useEffect(() => {
+    if (!loaded) return;
+    const shell = containerRef.current?.querySelector('[data-whop-checkout-shell]');
+    if (!shell || shell.querySelector('whop-express-checkout-button')) return;
+    const button = document.createElement('whop-express-checkout-button');
+    button.setAttribute('plan-id', planId);
+    button.setAttribute('return-url', 'https://www.matjaroq.com/');
+    button.setAttribute('environment', 'production');
+    button.setAttribute('skip-redirect', 'true');
+    button.setAttribute('theme', 'dark');
+    button.setAttribute('theme-accent-color', 'gold');
+    shell.prepend(button);
+    const onMethodResolved = (event: Event) => {
+      const detail = (event as CustomEvent).detail as { rendered?: string } | undefined;
+      if (detail?.rendered === 'none') {
+        button.style.display = 'none';
+      }
+    };
+    button.addEventListener('express-method-resolved', onMethodResolved);
+    return () => button.removeEventListener('express-method-resolved', onMethodResolved);
+  }, [loaded, planId]);
+
   return (
     <div ref={containerRef} className="w-full h-full">
       {loaded ? (
-        <div
-          data-whop-checkout-plan-id={planId}
-          data-whop-checkout-theme={theme}
-          data-whop-checkout-theme-accent-color={accentColor}
-          data-whop-checkout-theme-border-radius={borderRadius}
-        />
+        <div data-whop-checkout-shell className="flex flex-col gap-3">
+          <div
+            data-whop-checkout-plan-id={planId}
+            data-whop-checkout-theme={theme}
+            data-whop-checkout-theme-accent-color={accentColor}
+            data-whop-checkout-theme-border-radius={borderRadius}
+            data-whop-checkout-collect-phone-numbers="false"
+            data-whop-checkout-hide-address="true"
+            data-whop-checkout-skip-redirect="true"
+          />
+        </div>
       ) : (
         <button
           type="button"
@@ -68,7 +106,7 @@ export default function WhopCheckoutEmbed({
           </span>
           <span className="font-black text-lg text-white">إتمام الشراء الآمن عبر Whop</span>
           <span className="btn-buy px-8 py-3 rounded-xl text-base">اضغط للدفع الآن</span>
-          <span className="text-xs text-neutral-400">🔒 دفع مشفّر — Visa / Mastercard / Apple Pay</span>
+          <span className="text-xs text-neutral-400">🔒 دفع مشفّر — Visa / Mastercard / Apple Pay / Google Pay</span>
         </button>
       )}
     </div>
