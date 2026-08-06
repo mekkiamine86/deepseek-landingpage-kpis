@@ -97,7 +97,7 @@ export default function HomePage() {
         />
       )}
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-emerald-500/10 bg-[#001a0b]/85 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-emerald-500/10 bg-[#001a0b]/95">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00562a] to-[#00260f] border border-emerald-500/30 flex items-center justify-center text-xl">📖</div>
@@ -128,12 +128,20 @@ export default function HomePage() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#001a0b]/95 via-[#001a0b]/90 to-[#001a0b]" />
         </div>
-        <div className="hero-orb w-[500px] h-[500px] bg-emerald-500/15 top-0 -right-40 rounded-full blur-[120px]" aria-hidden />
-        <div className="hero-orb w-[400px] h-[400px] bg-red-500/10 bottom-0 -left-40 rounded-full blur-[100px]" aria-hidden />
+        <div
+          className="hero-orb w-[500px] h-[500px] top-0 -right-40"
+          style={{ '--orb-color': 'rgba(16, 185, 129, 0.28)' } as React.CSSProperties}
+          aria-hidden
+        />
+        <div
+          className="hero-orb w-[400px] h-[400px] bottom-0 -left-40"
+          style={{ '--orb-color': 'rgba(239, 68, 68, 0.16)' } as React.CSSProperties}
+          aria-hidden
+        />
 
         <div className="relative z-10 max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
           <div className="text-center lg:text-right">
-            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/5 border border-ivory/30 backdrop-blur mb-8">
+            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/10 border border-ivory/30 mb-8">
               <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
               <span className="text-sm font-semibold tracking-wide text-ivory">🇸🇦 دليل عملي مخصص للسوق السعودي</span>
             </div>
@@ -182,7 +190,11 @@ export default function HomePage() {
           {/* Book cover */}
           <div className="relative flex justify-center">
             <div className="relative animate-float">
-              <div className="absolute -inset-8 rounded-[3rem] bg-emerald-500/20 blur-[60px]" aria-hidden />
+              <div
+                className="absolute -inset-8 rounded-[3rem]"
+                style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.35) 0%, transparent 70%)' }}
+                aria-hidden
+              />
               <div className="relative w-64 md:w-80 rounded-3xl overflow-hidden shadow-2xl shadow-emerald-900/60 ring-1 ring-emerald-400/30 card-3d">
                 <Image
                   src="/images/cover.webp"
@@ -194,7 +206,7 @@ export default function HomePage() {
                   priority
                 />
               </div>
-              <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 px-5 py-3 rounded-2xl glass backdrop-blur font-bold text-sm whitespace-nowrap animate-float-slow">
+              <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 px-5 py-3 rounded-2xl glass font-bold text-sm whitespace-nowrap animate-float-slow">
                 ⭐ 8 فصول عملية · تسليم فوري
               </div>
             </div>
@@ -235,7 +247,11 @@ export default function HomePage() {
 
       {/* WHAT'S INSIDE */}
       <section id="chapters" className="relative max-w-6xl mx-auto px-4 py-20">
-        <div className="hero-orb w-[400px] h-[400px] bg-emerald-500/15 top-20 right-0 rounded-full blur-[100px]" aria-hidden />
+        <div
+          className="hero-orb w-[400px] h-[400px] top-20 right-0"
+          style={{ '--orb-color': 'rgba(16, 185, 129, 0.22)' } as React.CSSProperties}
+          aria-hidden
+        />
         <div className="text-center mb-14">
           <span className="text-emerald-400 font-semibold mb-2 inline-block">📖 ماذا ستتعلم داخل هذا الدليل الحصري؟</span>
           <h2 className="text-3xl md:text-5xl font-black mb-4">8 فصول تحمي مطعمك من الانهيار</h2>
@@ -344,7 +360,7 @@ export default function HomePage() {
               alt="Background"
               fill
               sizes="100vw"
-              className="object-cover opacity-10 animate-slow-zoom"
+              className="object-cover opacity-10"
             />
             <div className="absolute inset-0 bg-gradient-to-br from-[#001a0b]/85 to-[#001a0b]/90" />
           </div>
@@ -376,7 +392,7 @@ export default function HomePage() {
 
             <div className="glass rounded-3xl p-8 text-center">
               <div className="relative w-48 mx-auto mb-6">
-                <div className="absolute -inset-6 bg-emerald-500/20 blur-[40px] rounded-full" aria-hidden />
+                <div className="absolute -inset-6 rounded-full" style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.35) 0%, transparent 70%)' }} aria-hidden />
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-emerald-900/60 ring-1 ring-emerald-400/30 rotate-[-4deg] hover:rotate-0 transition-transform duration-500">
                   <Image
                     src="/images/cover.webp"
@@ -442,8 +458,16 @@ export default function HomePage() {
       {/* BONUS: EXCEL TOOLKIT */}
       <section className="relative max-w-6xl mx-auto px-4 py-20">
         <div className="relative rounded-[2rem] overflow-hidden bg-gradient-to-br from-[#FDFBF4] via-[#F9F4E7] to-[#F0E8D2] border-2 border-[#D4AF37]/40 shadow-[0_30px_80px_-20px_rgba(212,175,55,0.35)]">
-          <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#D4AF37]/15 rounded-full blur-[90px]" aria-hidden />
-          <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-emerald-700/10 rounded-full blur-[90px]" aria-hidden />
+          <div
+            className="absolute -top-24 -right-24 w-96 h-96 rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.25) 0%, transparent 70%)' }}
+            aria-hidden
+          />
+          <div
+            className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(4,120,87,0.18) 0%, transparent 70%)' }}
+            aria-hidden
+          />
 
           <div className="relative z-10 p-8 md:p-14">
             <div className="text-center mb-12">
@@ -474,7 +498,11 @@ export default function HomePage() {
 
             {/* Bundle emphasis */}
             <div className="relative rounded-3xl bg-gradient-to-br from-[#06251a] via-[#09351f] to-[#0a3a26] text-white p-8 md:p-10 overflow-hidden">
-              <div className="absolute top-0 right-0 w-72 h-72 bg-[#D4AF37]/20 rounded-full blur-[80px]" aria-hidden />
+              <div
+                className="absolute top-0 right-0 w-72 h-72 rounded-full"
+                style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.25) 0%, transparent 70%)' }}
+                aria-hidden
+              />
               <div className="relative z-10 text-center">
                 <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/40 text-[#F5D98B] font-black text-sm mb-6">
                   ⚡ استلام فوري فور إتمام الدفع عبر Whop

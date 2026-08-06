@@ -69,12 +69,10 @@ body {
 .animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
 
 .text-gradient {
-  background: linear-gradient(90deg, #00c853, #00e676, #00c853, #009688, #00c853);
-  background-size: 200% auto;
+  background: linear-gradient(90deg, #00c853, #00e676, #009688, #00c853);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: shimmer 6s linear infinite;
 }
 
 .card-3d {
@@ -88,17 +86,20 @@ body {
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .hero-orb {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(80px);
-  opacity: 0.7;
   pointer-events: none;
+  background: radial-gradient(
+    circle at center,
+    var(--orb-color, rgba(16, 185, 129, 0.3)) 0%,
+    var(--orb-color, rgba(16, 185, 129, 0.3)) 20%,
+    transparent 70%
+  );
 }
 
 .scroll-reveal {

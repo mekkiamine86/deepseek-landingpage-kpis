@@ -43,10 +43,14 @@ export default function ProductPageClient({ product }: Props) {
                     alt="Fast food"
                     fill
                     sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover opacity-20 animate-slow-zoom"
+                    className="object-cover opacity-20"
                   />
                   <div className="absolute inset-0 bg-gradient-to-br from-[#001a0b]/60 to-[#001a0b]/90" />
-                  <div className="hero-orb w-80 h-80 bg-emerald-500/25 rounded-full blur-[80px]" aria-hidden />
+                  <div
+                    className="hero-orb w-80 h-80"
+                    style={{ '--orb-color': 'rgba(16, 185, 129, 0.3)' } as React.CSSProperties}
+                    aria-hidden
+                  />
                   <div
                     className="relative rotate-[-6deg] hover:rotate-0 transition-transform duration-700"
                     style={{ filter: 'drop-shadow(0 40px 60px rgba(0,200,83,0.35))' }}
