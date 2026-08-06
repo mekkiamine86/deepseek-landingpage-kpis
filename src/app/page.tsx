@@ -122,7 +122,8 @@ export default function HomePage() {
             src="/images/photo2.webp"
             alt="Restaurant"
             fill
-            loading="lazy"
+            priority
+            fetchPriority="high"
             sizes="100vw"
             className="object-cover opacity-20"
           />

@@ -46,10 +46,7 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(90deg, #00c853, #00e676, #009688, #00c853);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #00e676;
 }
 
 .card-3d {
