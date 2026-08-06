@@ -3,6 +3,9 @@ export interface TrackableProduct {
   tiktokPixelId?: string | null;
   snapchatPixelId?: string | null;
   googleAdsId?: string | null;
+  gtmId?: string | null;
+  linkedInPartnerId?: string | null;
+  hubSpotId?: string | null;
 }
 
 const loaded = new Set<string>();
@@ -22,7 +25,7 @@ function appendInlineScript(code: string) {
 }
 
 export function onFirstInteraction(cb: () => void) {
-  const events = ['pointerdown', 'keydown', 'scroll', 'touchstart', 'mousemove'];
+  const events = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
   let fired = false;
   const trigger = () => {
     if (fired) return;
@@ -137,18 +140,64 @@ export function loadGoogleAds(googleAdsId: string) {
   head.appendChild(inline);
 }
 
+export function loadGoogleTagManager(gtmId: string) {
+  const key = `gtm:${gtmId}`;
+  if (!gtmId || loaded.has(key)) return;
+  markLoaded(key);
+
+  appendInlineScript(`
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','${gtmId}');
+  `);
+}
+
+export function loadLinkedInInsight(partnerId: string) {
+  const key = `linkedin:${partnerId}`;
+  if (!partnerId || loaded.has(key)) return;
+  markLoaded(key);
+
+  appendInlineScript(`
+    _linkedin_partner_id = '${partnerId}';
+    window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+    window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+    (function(l) {
+      if (!l) { window.lintrk = function(a, b) { window.lintrk.q.push([a, b]); }; window.lintrk.q = []; }
+      var s = document.getElementsByTagName('script')[0];
+      var b = document.createElement('script');
+      b.type = 'text/javascript'; b.async = true;
+      b.src = 'https://snap.licdn.com/li.lms-analytics/insight.min.js';
+      s.parentNode.insertBefore(b, s);
+    })(window.lintrk);
+  `);
+}
+
+export function loadHubSpot(hubspotId: string) {
+  const key = `hubspot:${hubspotId}`;
+  if (!hubspotId || loaded.has(key)) return;
+  markLoaded(key);
+
+  const script = document.createElement('script');
+  script.src = `https://js.hs-scripts.com/${hubspotId}.js`;
+  script.async = true;
+  script.defer = true;
+  script.id = 'hs-script-loader';
+  document.head.appendChild(script);
+}
+
 export function loadProductPixels(product: TrackableProduct) {
   if (product.metaPixelId) loadMetaPixel(product.metaPixelId);
   if (product.tiktokPixelId) loadTikTokPixel(product.tiktokPixelId);
   if (product.snapchatPixelId) loadSnapchatPixel(product.snapchatPixelId);
   if (product.googleAdsId) loadGoogleAds(product.googleAdsId);
+  if (product.gtmId) loadGoogleTagManager(product.gtmId);
+  if (product.linkedInPartnerId) loadLinkedInInsight(product.linkedInPartnerId);
+  if (product.hubSpotId) loadHubSpot(product.hubSpotId);
 }
 
-export function deferPixelScripts(product: TrackableProduct) {
-  const run = () => {
-    if (product.tiktokPixelId) loadTikTokPixel(product.tiktokPixelId);
-    if (product.snapchatPixelId) loadSnapchatPixel(product.snapchatPixelId);
-    if (product.googleAdsId) loadGoogleAds(product.googleAdsId);
-  };
+export function deferMarketingScripts(product: TrackableProduct) {
+  const run = () => loadProductPixels(product);
   deferToIdleOrInteraction(run);
 }

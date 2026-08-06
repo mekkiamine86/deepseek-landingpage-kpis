@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import productsData from '@/data/products.json';
 import { Product } from '@/types/product';
-import WhopCheckoutEmbed from '@/components/WhopCheckoutEmbed';
+import WhopCheckoutLazy from '@/components/WhopCheckoutLazy';
 import MetaPixel from '@/components/MetaPixel';
 
 const products = productsData as unknown as Product[];
@@ -426,10 +426,9 @@ export default function HomePage() {
               </div>
 
               <div className="whop-embed-shell mt-6 rounded-2xl border border-[#D4AF37]/60 bg-white/[0.03] p-3 md:p-5 shadow-[0_8px_40px_-12px_rgba(212,175,55,0.25)]">
-                <WhopCheckoutEmbed
-                  planId={book.whopPlanId!}
-                  className="w-full min-h-[420px] md:min-h-[420px] overflow-hidden rounded-xl"
-                />
+                <div className="relative w-full min-h-[420px] md:min-h-[420px] overflow-hidden rounded-xl">
+                  <WhopCheckoutLazy planId={book.whopPlanId!} />
+                </div>
               </div>
 
               <div className="mt-4 text-xs text-neutral-400">

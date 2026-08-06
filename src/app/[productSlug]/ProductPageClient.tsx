@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Product } from '@/types/product';
 import SizeColorSelector from '@/components/SizeColorSelector';
 import CheckoutForm from '@/components/CheckoutForm';
-import { loadMetaPixel, deferPixelScripts } from '@/lib/tracking';
+import { deferMarketingScripts } from '@/lib/tracking';
 
 interface Props {
   product: Product;
@@ -16,8 +16,7 @@ export default function ProductPageClient({ product }: Props) {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
   useEffect(() => {
-    if (product.metaPixelId) loadMetaPixel(product.metaPixelId);
-    deferPixelScripts(product);
+    deferMarketingScripts(product);
   }, [product]);
 
   const sizes = product.sizes || [];

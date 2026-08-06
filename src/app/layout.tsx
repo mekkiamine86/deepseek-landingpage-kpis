@@ -136,16 +136,6 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-[#001a0b] text-white min-h-screen">
-        <link
-          rel="preconnect"
-          href="https://js.whop.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preconnect"
-          href="https://whop.com"
-          crossOrigin="anonymous"
-        />
         {children}
       </body>
     </html>

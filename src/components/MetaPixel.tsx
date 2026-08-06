@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { loadMetaPixel } from '@/lib/tracking';
+import { loadMetaPixel, deferToIdleOrInteraction } from '@/lib/tracking';
 
 interface MetaPixelProps {
   pixelId: string;
@@ -18,7 +18,7 @@ export default function MetaPixel({
 }: MetaPixelProps) {
   useEffect(() => {
     if (!pixelId) return;
-    loadMetaPixel(pixelId, contentName, contentId, price);
+    deferToIdleOrInteraction(() => loadMetaPixel(pixelId, contentName, contentId, price));
   }, [pixelId, contentName, contentId, price]);
 
   return null;

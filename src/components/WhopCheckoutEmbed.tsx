@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface WhopCheckoutEmbedProps {
   planId: string;
   theme?: 'light' | 'dark';
   accentColor?: string;
   borderRadius?: number;
-  className?: string;
 }
 
 export default function WhopCheckoutEmbed({
@@ -15,24 +14,63 @@ export default function WhopCheckoutEmbed({
   theme = 'light',
   accentColor = '#059669',
   borderRadius = 10,
-  className,
 }: WhopCheckoutEmbedProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [loaded, setLoaded] = useState(false);
+
   useEffect(() => {
+    const node = containerRef.current;
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      setLoaded(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setLoaded(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '500px 0px', threshold: 0.01 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!loaded) return;
     if (document.querySelector('script[data-whop-checkout-loader]')) return;
     const script = document.createElement('script');
     script.src = 'https://js.whop.com/static/checkout/loader.js';
     script.async = true;
     script.dataset.whopCheckoutLoader = 'true';
     document.head.appendChild(script);
-  }, []);
+  }, [loaded]);
 
   return (
-    <div
-      className={className}
-      data-whop-checkout-plan-id={planId}
-      data-whop-checkout-theme={theme}
-      data-whop-checkout-theme-accent-color={accentColor}
-      data-whop-checkout-theme-border-radius={borderRadius}
-    />
+    <div ref={containerRef} className="w-full h-full">
+      {loaded ? (
+        <div
+          data-whop-checkout-plan-id={planId}
+          data-whop-checkout-theme={theme}
+          data-whop-checkout-theme-accent-color={accentColor}
+          data-whop-checkout-theme-border-radius={borderRadius}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setLoaded(true)}
+          className="flex w-full min-h-[420px] flex-col items-center justify-center gap-3 rounded-xl border border-[#D4AF37]/50 bg-gradient-to-b from-[#D4AF37]/15 to-transparent p-6 text-center transition-colors hover:border-[#D4AF37] hover:from-[#D4AF37]/25"
+          aria-label="فتح الدفع الآمن عبر Whop"
+        >
+          <span className="text-4xl" aria-hidden>
+            🛒
+          </span>
+          <span className="font-black text-lg text-white">إتمام الشراء الآمن عبر Whop</span>
+          <span className="btn-buy px-8 py-3 rounded-xl text-base">اضغط للدفع الآن</span>
+          <span className="text-xs text-neutral-400">🔒 دفع مشفّر — Visa / Mastercard / Apple Pay</span>
+        </button>
+      )}
+    </div>
   );
 }
