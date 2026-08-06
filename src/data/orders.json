@@ -1,0 +1,30 @@
+[
+  {
+    "id": "ORD-001",
+    "productSlug": "nike-air-max",
+    "name": "محمد أمين",
+    "phone": "0555123456",
+    "wilaya": "16",
+    "baladiya": "باب الوادي",
+    "quantity": 1,
+    "size": "42",
+    "color": "أسود",
+    "total": 12600,
+    "status": "pending",
+    "date": "2026-07-22T10:30:00Z"
+  },
+  {
+    "id": "ORD-002",
+    "productSlug": "nike-air-max",
+    "name": "سارة",
+    "phone": "0666123789",
+    "wilaya": "31",
+    "baladiya": "وهران",
+    "quantity": 2,
+    "size": "39",
+    "color": "أبيض",
+    "total": 24300,
+    "status": "confirmed",
+    "date": "2026-07-23T08:15:00Z"
+  }
+]

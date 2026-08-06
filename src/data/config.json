@@ -1,0 +1,22 @@
+{
+  "shopify": {
+    "enabled": false,
+    "shopDomain": "",
+    "accessToken": "",
+    "webhookSecret": ""
+  },
+  "woocommerce": {
+    "enabled": false,
+    "siteUrl": "",
+    "consumerKey": "",
+    "consumerSecret": "",
+    "webhookSecret": ""
+  },
+  "storeName": "متجري",
+  "storeCurrency": "DZD",
+  "whatsappNumber": "",
+  "defaultMetaPixelId": "",
+  "defaultTiktokPixelId": "",
+  "defaultSnapchatPixelId": "",
+  "defaultGoogleAdsId": ""
+}
