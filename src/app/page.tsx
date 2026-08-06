@@ -123,7 +123,8 @@ export default function HomePage() {
             alt="Restaurant"
             fill
             priority
-            className="object-cover opacity-20 animate-kenburns"
+            sizes="100vw"
+            className="object-cover opacity-20"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#001a0b]/95 via-[#001a0b]/90 to-[#001a0b]" />
         </div>
@@ -132,23 +133,23 @@ export default function HomePage() {
 
         <div className="relative z-10 max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
           <div className="text-center lg:text-right">
-            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/5 border border-ivory/30 backdrop-blur mb-8 fade-in">
+            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/5 border border-ivory/30 backdrop-blur mb-8">
               <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
               <span className="text-sm font-semibold tracking-wide text-ivory">🇸🇦 دليل عملي مخصص للسوق السعودي</span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-black leading-tight mb-6 fade-in" style={{ animationDelay: '0.15s', textShadow: '0 0 60px rgba(212,175,55,0.15)' }}>
+            <h1 className="text-4xl md:text-6xl font-black leading-tight mb-6" style={{ textShadow: '0 0 60px rgba(212,175,55,0.15)' }}>
               هل يدير مطعمك الأموال
               <br />
               أم <span className="text-ivory">ينزفها بصمت؟</span>
             </h1>
 
-            <p className="text-emerald-50 text-lg md:text-xl mb-8 fade-in max-w-xl mx-auto lg:mx-0 leading-relaxed" style={{ animationDelay: '0.3s' }}>
+            <p className="text-emerald-50 text-lg md:text-xl mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
               اكتشف الأخطاء القاتلة التي تؤدي إلى إغلاق <span className="font-black text-red-400 animate-pulse inline-block">60% من المطاعم في عامها الأول</span>،
               وكيف تحوّل أرقامك الحقيقية إلى ربحية مستدامة في السوق السعودي.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 fade-in" style={{ animationDelay: '0.45s' }}>
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
               <a
                 href="#offer"
                 className="btn-buy px-10 py-5 rounded-2xl text-xl inline-block"
@@ -163,7 +164,7 @@ export default function HomePage() {
               </a>
             </div>
 
-            <div className="mt-14 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 fade-in" style={{ animationDelay: '0.6s' }}>
+            <div className="mt-14 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3">
               {[
                 { icon: '⚡', label: 'تحميل فوري' },
                 { icon: '🔒', label: 'دفع آمن عبر Whop' },
@@ -179,7 +180,7 @@ export default function HomePage() {
           </div>
 
           {/* Book cover */}
-          <div className="relative flex justify-center fade-in" style={{ animationDelay: '0.5s' }}>
+          <div className="relative flex justify-center">
             <div className="relative animate-float">
               <div className="absolute -inset-8 rounded-[3rem] bg-emerald-500/20 blur-[60px]" aria-hidden />
               <div className="relative w-64 md:w-80 rounded-3xl overflow-hidden shadow-2xl shadow-emerald-900/60 ring-1 ring-emerald-400/30 card-3d">
@@ -188,6 +189,7 @@ export default function HomePage() {
                   alt="كيف لا يُغلق مطعمك"
                   width={640}
                   height={1137}
+                  sizes="(max-width: 768px) 256px, 320px"
                   className="w-full h-auto"
                   priority
                 />
@@ -297,6 +299,7 @@ export default function HomePage() {
                   src={photo.src}
                   alt={photo.alt}
                   fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover group-hover:scale-110 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#001a0b]/90 to-transparent" />
@@ -340,6 +343,7 @@ export default function HomePage() {
               src="/images/photo1.webp"
               alt="Background"
               fill
+              sizes="100vw"
               className="object-cover opacity-10 animate-slow-zoom"
             />
             <div className="absolute inset-0 bg-gradient-to-br from-[#001a0b]/85 to-[#001a0b]/90" />
@@ -379,6 +383,7 @@ export default function HomePage() {
                     alt="الكتاب"
                     width={640}
                     height={1137}
+                    sizes="192px"
                     className="w-full h-auto"
                   />
                 </div>

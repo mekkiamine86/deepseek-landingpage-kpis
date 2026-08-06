@@ -1,7 +1,9 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import { gretaArabic } from './fonts';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.matjaroq.com'),
   title: 'كيف لا يُغلق مطعمك؟ — الدليل العملي للسوق السعودي',
   description: 'دليل عملي لأصحاب المطاعم والمقاهي في السعودية: الأنظمة المالية والتشغيلية التي تحمي مشروعك من الانهيار وتحوّل أرقامك إلى أرباح مستدامة.',
   robots: {
@@ -126,7 +128,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" className={gretaArabic.variable}>
       <head>
         <script
           type="application/ld+json"
@@ -134,6 +136,16 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-[#001a0b] text-white min-h-screen">
+        <link
+          rel="preconnect"
+          href="https://js.whop.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preconnect"
+          href="https://whop.com"
+          crossOrigin="anonymous"
+        />
         {children}
       </body>
     </html>

@@ -5,6 +5,7 @@ import { Product } from '@/types/product';
 import { ALGERIA_SHIPPING_MATRIX } from '@/data/algeriaShippingMatrix';
 import { formatPrice } from '@/lib/format';
 import WhopCheckoutButton from '@/components/WhopCheckoutButton';
+import { loadProductPixels } from '@/lib/tracking';
 
 // Complete Algerian Wilaya data moved to data/algeriaShippingMatrix.ts
 
@@ -69,6 +70,9 @@ export default function CheckoutForm({ product, selectedSize, selectedColor }: C
   const fireConversionEvents = () => {
     const eventName = product.pixelEventMode === 'lead' ? 'Lead' : 'Purchase';
     try {
+      // Ensure pixel SDKs are queued even if deferred loading hasn't fired yet
+      loadProductPixels(product);
+
       // Meta Pixel
       if (product.metaPixelId && typeof window !== 'undefined' && window.fbq) {
         window.fbq('track', eventName);
