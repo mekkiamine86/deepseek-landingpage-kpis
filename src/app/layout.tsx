@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { gretaArabic } from './fonts';
+import ScrollReveal from '@/components/ScrollReveal';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.matjaroq.com'),
@@ -137,6 +138,7 @@ export default function RootLayout({
       </head>
       <body className="bg-[#001a0b] text-white min-h-screen">
         {children}
+        <ScrollReveal />
       </body>
     </html>
   );

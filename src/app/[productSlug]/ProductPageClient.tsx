@@ -25,7 +25,7 @@ export default function ProductPageClient({ product }: Props) {
   return (
     <div className="min-h-screen bg-[#001a0b] text-white">
       <div className="max-w-7xl mx-auto px-4 py-10">
-        <div className="mb-6 bg-red-900/20 border border-red-800 rounded-xl p-4 text-center animate-pulse">
+        <div className="mb-6 bg-red-900/20 border border-red-800 rounded-xl p-4 text-center">
           <span className="text-red-400 font-bold text-lg">
             متبقي {product.stockCount} نسخة فقط، اطلب الآن قبل نفاد الكمية!
           </span>

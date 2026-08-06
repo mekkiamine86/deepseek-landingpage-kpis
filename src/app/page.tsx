@@ -123,6 +123,7 @@ export default function HomePage() {
             alt="Restaurant"
             fill
             priority
+            fetchPriority="high"
             sizes="100vw"
             className="object-cover opacity-20"
           />
@@ -153,7 +154,7 @@ export default function HomePage() {
             </h1>
 
             <p className="text-emerald-50 text-lg md:text-xl mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              اكتشف الأخطاء القاتلة التي تؤدي إلى إغلاق <span className="font-black text-red-400 animate-pulse inline-block">60% من المطاعم في عامها الأول</span>،
+              اكتشف الأخطاء القاتلة التي تؤدي إلى إغلاق <span className="font-black text-red-400 inline-block">60% من المطاعم في عامها الأول</span>،
               وكيف تحوّل أرقامك الحقيقية إلى ربحية مستدامة في السوق السعودي.
             </p>
 
@@ -189,7 +190,7 @@ export default function HomePage() {
 
           {/* Book cover */}
           <div className="relative flex justify-center">
-            <div className="relative animate-float">
+            <div className="relative">
               <div
                 className="absolute -inset-8 rounded-[3rem]"
                 style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.35) 0%, transparent 70%)' }}
@@ -206,7 +207,7 @@ export default function HomePage() {
                   priority
                 />
               </div>
-              <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 px-5 py-3 rounded-2xl glass font-bold text-sm whitespace-nowrap animate-float-slow">
+              <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 px-5 py-3 rounded-2xl glass font-bold text-sm whitespace-nowrap">
                 ⭐ 8 فصول عملية · تسليم فوري
               </div>
             </div>
@@ -564,7 +565,7 @@ export default function HomePage() {
       {/* FINAL CTA */}
       <section className="relative px-4 pb-20">
         <div className="max-w-3xl mx-auto text-center glass rounded-[2rem] p-10 md:p-14 border-emerald-500/20">
-          <div className="text-6xl mb-6 animate-float">📖</div>
+          <div className="text-6xl mb-6">📖</div>
           <h2 className="text-3xl md:text-5xl font-black mb-4">جاهز لحماية مطعمك ومضاعفة أرباحك؟</h2>
           <p className="text-neutral-300 text-lg mb-8 max-w-xl mx-auto">
             اضغط على الزر أدناه لإتمام الطلب بأمان عبر Whop وتحميل نسختك فوراً.
