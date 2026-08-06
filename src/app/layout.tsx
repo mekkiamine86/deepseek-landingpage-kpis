@@ -1,6 +1,5 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { gretaArabic } from './fonts';
 import ScrollReveal from '@/components/ScrollReveal';
 
 export const metadata: Metadata = {
@@ -129,8 +128,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar" dir="rtl" className={gretaArabic.variable}>
+    <html lang="ar" dir="rtl">
       <head>
+        <link
+          rel="preload"
+          href="/fonts/GretaArabic-400.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
