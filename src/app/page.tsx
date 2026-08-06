@@ -122,8 +122,7 @@ export default function HomePage() {
             src="/images/photo2.webp"
             alt="Restaurant"
             fill
-            priority
-            fetchPriority="high"
+            loading="lazy"
             sizes="100vw"
             className="object-cover opacity-20"
           />
@@ -205,6 +204,7 @@ export default function HomePage() {
                   sizes="(max-width: 768px) 256px, 320px"
                   className="w-full h-auto"
                   priority
+                  fetchPriority="high"
                 />
               </div>
               <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 px-5 py-3 rounded-2xl glass font-bold text-sm whitespace-nowrap">
