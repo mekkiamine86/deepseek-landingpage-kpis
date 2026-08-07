@@ -118,24 +118,11 @@ body {
   animation: scroll-reveal 0.6s ease forwards;
 }
 
-/* ===== Whop Embedded Checkout — viewport containment ===== */
+/* ===== Global box sizing ===== */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-}
-
-[data-whop-checkout-plan-id] {
-  max-width: 100%;
-  overflow: hidden;
-}
-
-[data-whop-checkout-plan-id] iframe {
-  display: block;
-  max-width: 100%;
-  width: 100%;
-  border: 0;
-  margin: 0 auto;
 }
 
 /* ===== Touch targets — minimum comfortable tap area ===== */
@@ -152,17 +139,5 @@ textarea {
   html,
   body {
     overflow-x: hidden;
-  }
-
-  .whop-embed-shell {
-    padding: 0.75rem;
-  }
-
-  [data-whop-checkout-plan-id] {
-    min-height: 460px;
-  }
-
-  [data-whop-checkout-plan-id] iframe {
-    min-height: 460px;
   }
 }

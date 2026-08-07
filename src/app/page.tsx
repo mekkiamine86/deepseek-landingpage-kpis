@@ -1,8 +1,9 @@
 import Image from 'next/image';
 import productsData from '@/data/products.json';
 import { Product } from '@/types/product';
-import WhopCheckoutLazy from '@/components/WhopCheckoutLazy';
 import MetaPixel from '@/components/MetaPixel';
+
+const WHOP_CHECKOUT_URL = 'https://whop.com/checkout/plan_7cJ0OBbJRxlYA';
 
 const products = productsData as unknown as Product[];
 const book = products[0];
@@ -107,7 +108,9 @@ export default function HomePage() {
             </div>
           </div>
           <a
-            href="#offer"
+            href={WHOP_CHECKOUT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="btn-buy px-5 py-2.5 rounded-xl text-sm inline-block"
           >
             اشترِ الآن
@@ -160,7 +163,9 @@ export default function HomePage() {
 
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
               <a
-                href="#offer"
+                href={WHOP_CHECKOUT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn-buy px-10 py-5 rounded-2xl text-xl inline-block"
               >
                 احصل على الكتاب الآن
@@ -443,14 +448,21 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="whop-embed-shell mt-6 rounded-2xl border border-[#D4AF37]/60 bg-white/[0.03] p-3 md:p-5 shadow-[0_8px_40px_-12px_rgba(212,175,55,0.25)]">
-                <div className="relative w-full min-h-[420px] md:min-h-[420px] overflow-hidden rounded-xl">
-                  <WhopCheckoutLazy planId={book.whopPlanId!} />
-                </div>
-              </div>
+              <a
+                href={WHOP_CHECKOUT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-buy mt-6 flex w-full flex-col items-center justify-center gap-3 rounded-xl px-6 py-10 text-center"
+              >
+                <span className="text-4xl" aria-hidden>
+                  🛒
+                </span>
+                <span className="font-black text-xl">إتمام الشراء الآن</span>
+                <span className="text-sm font-bold opacity-80">🔒 دفع آمن عبر Whop — Visa / Mastercard / Apple Pay / Google Pay</span>
+              </a>
 
               <div className="mt-4 text-xs text-neutral-400">
-                🔒 دفع آمن عبر Whop — لن تغادر هذه الصفحة
+                🔒 دفع آمن عبر Whop — سيتم فتح بوابة الدفع في تبويب جديد
               </div>
             </div>
           </div>
@@ -573,7 +585,9 @@ export default function HomePage() {
             سعر الكتاب <span dir="ltr" className="text-white font-black">90$</span> فقط.
           </p>
           <a
-            href="#offer"
+            href={WHOP_CHECKOUT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="btn-buy inline-block px-12 py-5 rounded-2xl text-xl"
           >
             اشتري الكتاب الآن

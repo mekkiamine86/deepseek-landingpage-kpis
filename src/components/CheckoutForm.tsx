@@ -4,10 +4,7 @@ import { useState, useMemo } from 'react';
 import { Product } from '@/types/product';
 import { ALGERIA_SHIPPING_MATRIX } from '@/data/algeriaShippingMatrix';
 import { formatPrice } from '@/lib/format';
-import WhopCheckoutButton from '@/components/WhopCheckoutButton';
 import { loadProductPixels } from '@/lib/tracking';
-
-// Complete Algerian Wilaya data moved to data/algeriaShippingMatrix.ts
 
 interface Window {
   fbq?: (...args: unknown[]) => void;
@@ -293,23 +290,14 @@ export default function CheckoutForm({ product, selectedSize, selectedColor }: C
       <div className="space-y-3">
         {/* Payment Link Button */}
         {product.enablePaymentLink && product.paymentUrl && (
-          product.whopPlanId ? (
-            <WhopCheckoutButton
-              planId={product.whopPlanId}
-              className="btn-buy block w-full text-white text-center py-4 rounded-xl font-bold text-lg"
-            >
-              اشترِ الآن وحمل فوراً
-            </WhopCheckoutButton>
-          ) : (
-            <a
-              href={product.paymentUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-buy block w-full text-white text-center py-4 rounded-xl font-bold text-lg"
-            >
-              اشترِ الآن وحمل فوراً
-            </a>
-          )
+          <a
+            href={product.paymentUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-buy block w-full text-white text-center py-4 rounded-xl font-bold text-lg"
+          >
+            اشترِ الآن وحمل فوراً
+          </a>
         )}
 
         {/* WhatsApp Button */}
