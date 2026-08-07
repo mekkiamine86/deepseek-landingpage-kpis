@@ -17,6 +17,7 @@ export default function WhopCheckoutEmbed({
 }: WhopCheckoutEmbedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const node = containerRef.current;
@@ -47,6 +48,49 @@ export default function WhopCheckoutEmbed({
     document.addEventListener('click', onBuyClick);
     return () => document.removeEventListener('click', onBuyClick);
   }, []);
+
+  const handleBuyClick = () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    setLoaded(true);
+  };
+
+  // Clear the loading overlay once the Whop iframe actually renders
+  useEffect(() => {
+    if (!loaded || !isLoading) return;
+    const shell = containerRef.current;
+    if (!shell) return;
+    const clearLoading = () => setIsLoading(false);
+    let iframeListener: HTMLIFrameElement | null = null;
+    let mutationObserver: MutationObserver | null = null;
+    const fallbackTimer = window.setTimeout(clearLoading, 8000);
+
+    const bindIframe = (iframe: HTMLIFrameElement) => {
+      iframeListener = iframe;
+      iframe.addEventListener('load', clearLoading, { once: true });
+    };
+
+    const existingIframe = shell.querySelector('iframe');
+    if (existingIframe) {
+      bindIframe(existingIframe);
+      return () => {
+        window.clearTimeout(fallbackTimer);
+        iframeListener?.removeEventListener('load', clearLoading);
+        mutationObserver?.disconnect();
+      };
+    }
+
+    mutationObserver = new MutationObserver(() => {
+      const iframe = shell.querySelector('iframe');
+      if (iframe && iframe !== iframeListener) bindIframe(iframe);
+    });
+    mutationObserver.observe(shell, { childList: true, subtree: true });
+    return () => {
+      window.clearTimeout(fallbackTimer);
+      iframeListener?.removeEventListener('load', clearLoading);
+      mutationObserver?.disconnect();
+    };
+  }, [loaded, isLoading]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -81,9 +125,9 @@ export default function WhopCheckoutEmbed({
   }, [loaded, planId]);
 
   return (
-    <div ref={containerRef} className="w-full h-full">
+    <div ref={containerRef} className="relative w-full h-full">
       {loaded ? (
-        <div data-whop-checkout-shell className="flex flex-col gap-3">
+        <div data-whop-checkout-shell className="flex flex-col gap-3 min-h-[420px]">
           <div
             data-whop-checkout-plan-id={planId}
             data-whop-checkout-theme={theme}
@@ -97,7 +141,8 @@ export default function WhopCheckoutEmbed({
       ) : (
         <button
           type="button"
-          onClick={() => setLoaded(true)}
+          onClick={handleBuyClick}
+          disabled={isLoading}
           className="flex w-full min-h-[420px] flex-col items-center justify-center gap-3 rounded-xl border border-[#D4AF37]/50 bg-gradient-to-b from-[#D4AF37]/15 to-transparent p-6 text-center transition-colors hover:border-[#D4AF37] hover:from-[#D4AF37]/25"
           aria-label="فتح الدفع الآمن عبر Whop"
         >
@@ -108,6 +153,19 @@ export default function WhopCheckoutEmbed({
           <span className="btn-buy px-8 py-3 rounded-xl text-base">اضغط للدفع الآن</span>
           <span className="text-xs text-neutral-400">🔒 دفع مشفّر — Visa / Mastercard / Apple Pay / Google Pay</span>
         </button>
+      )}
+      {loaded && isLoading && (
+        <div
+          className="absolute inset-0 z-10 flex min-h-[420px] flex-col items-center justify-center gap-3 rounded-xl bg-[#001a0b]/90 backdrop-blur-sm"
+          role="status"
+          aria-live="polite"
+        >
+          <div
+            className="h-10 w-10 animate-spin rounded-full border-2 border-[#D4AF37] border-t-transparent"
+            aria-hidden
+          />
+          <span className="text-sm font-bold text-white">جاري فتح بوابة الدفع...</span>
+        </div>
       )}
     </div>
   );

@@ -137,6 +137,15 @@ export default function RootLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
+        {/* Whop checkout: early network handshakes to cut latency on buy click */}
+        <link rel="preconnect" href="https://js.whop.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://data.whop.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://whop.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://static.whop.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://js.whop.com" />
+        <link rel="dns-prefetch" href="https://data.whop.com" />
+        <link rel="dns-prefetch" href="https://whop.com" />
+        <link rel="dns-prefetch" href="https://static.whop.com" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}

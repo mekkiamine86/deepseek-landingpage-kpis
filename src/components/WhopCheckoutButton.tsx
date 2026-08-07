@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 interface WhopCheckoutButtonProps {
   planId: string;
@@ -29,6 +29,7 @@ export default function WhopCheckoutButton({
   accentColor = '#059669',
 }: WhopCheckoutButtonProps) {
   const scriptRequested = useRef(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const ensureLoaded = () => {
     if (scriptRequested.current) return;
@@ -41,8 +42,7 @@ export default function WhopCheckoutButton({
     document.head.appendChild(script);
   };
 
-  const handleClick = () => {
-    ensureLoaded();
+  const openCheckout = () => {
     if (window.WhopCheckout) {
       window.WhopCheckout.open({
         planId,
@@ -55,9 +55,53 @@ export default function WhopCheckoutButton({
     }
   };
 
+  const handleClick = () => {
+    if (isLoading) return;
+    ensureLoaded();
+    setIsLoading(true);
+
+    if (window.WhopCheckout) {
+      openCheckout();
+      setIsLoading(false);
+      return;
+    }
+
+    let attempts = 0;
+    const poll = window.setInterval(() => {
+      attempts += 1;
+      if (window.WhopCheckout) {
+        window.clearInterval(poll);
+        openCheckout();
+        setIsLoading(false);
+      } else if (attempts >= 30) {
+        window.clearInterval(poll);
+        window.open(`https://whop.com/checkout/${planId}`, '_blank', 'noopener,noreferrer');
+        setIsLoading(false);
+      }
+    }, 100);
+  };
+
   return (
-    <button type="button" onClick={handleClick} className={className}>
-      {children}
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={isLoading}
+      aria-busy={isLoading}
+      className={`${className ?? ''} ${
+        isLoading ? 'flex items-center justify-center gap-2 cursor-wait' : ''
+      }`}
+    >
+      {isLoading ? (
+        <>
+          <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z" />
+          </svg>
+          <span>جاري فتح بوابة الدفع...</span>
+        </>
+      ) : (
+        children
+      )}
     </button>
   );
 }
