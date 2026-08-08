@@ -1,8 +1,7 @@
 ﻿'use client';
 
-import { useState, useMemo } from 'react';
-import { Product } from '@/types/product';
-import { ALGERIA_SHIPPING_MATRIX } from '@/data/algeriaShippingMatrix';
+import { useState, useEffect, useMemo } from 'react';
+import { Product, WilayaData } from '@/types/product';
 import { formatPrice } from '@/lib/format';
 import { loadProductPixels } from '@/lib/tracking';
 
@@ -30,9 +29,23 @@ export default function CheckoutForm({ product, selectedSize, selectedColor }: C
   const [shippingMethod, setShippingMethod] = useState<'home' | 'desk' | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [shippingMatrix, setShippingMatrix] = useState<WilayaData[]>([]);
+
+  useEffect(() => {
+    if (!product.enableWilayaSelect) return;
+    let cancelled = false;
+    import('@/data/algeriaShippingMatrix')
+      .then(({ ALGERIA_SHIPPING_MATRIX }) => {
+        if (!cancelled) setShippingMatrix(ALGERIA_SHIPPING_MATRIX);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [product.enableWilayaSelect]);
 
   // Get full Wilaya object from code
-  const wilayaObj = ALGERIA_SHIPPING_MATRIX.find((w) => w.code === selectedWilaya) || null;
+  const wilayaObj = shippingMatrix.find((w) => w.code === selectedWilaya) || null;
 
   // Filter baladiyas based on selected wilaya
   const availableBaladiyas = useMemo(() => {
@@ -137,7 +150,7 @@ export default function CheckoutForm({ product, selectedSize, selectedColor }: C
     if (product.enableQuantityInput) msg += `الكمية: ${quantity}\n`;
     if (product.enableNameField && name) msg += `الاسم: ${name}\n`;
     if (product.enablePhoneField && phone) msg += `الهاتف: ${phone}\n`;
-    if (selectedWilaya) msg += `الولاية: ${ALGERIA_SHIPPING_MATRIX.find(w => w.code === selectedWilaya)?.name}\n`;
+    if (selectedWilaya) msg += `الولاية: ${shippingMatrix.find(w => w.code === selectedWilaya)?.name}\n`;
     if (selectedBaladiya) msg += `البلدية: ${selectedBaladiya}\n`;
     msg += `الإجمالي: ${formatPrice(total)}`;
     return encodeURIComponent(msg);
@@ -196,7 +209,7 @@ export default function CheckoutForm({ product, selectedSize, selectedColor }: C
             className="w-full bg-neutral-950 border border-neutral-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
             <option value="">اختر الولاية</option>
-            {ALGERIA_SHIPPING_MATRIX.map((w) => (
+            {shippingMatrix.map((w) => (
               <option key={w.code} value={w.code}>{w.name}</option>
             ))}
           </select>

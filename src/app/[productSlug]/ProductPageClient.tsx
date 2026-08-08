@@ -2,10 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { Product } from '@/types/product';
-import SizeColorSelector from '@/components/SizeColorSelector';
-import CheckoutForm from '@/components/CheckoutForm';
 import { deferMarketingScripts } from '@/lib/tracking';
+
+const SizeColorSelector = dynamic(() => import('@/components/SizeColorSelector'));
+
+const CheckoutForm = dynamic(() => import('@/components/CheckoutForm'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4 animate-pulse">
+      <div className="h-6 w-32 rounded-lg bg-neutral-800" />
+      <div className="h-14 w-full rounded-xl bg-neutral-800" />
+      <div className="h-14 w-full rounded-xl bg-neutral-800" />
+    </div>
+  ),
+});
 
 interface Props {
   product: Product;
