@@ -35,48 +35,81 @@ function markProcessed(webhookId: string): void {
   }
 }
 
-function verifySignature(rawBody: string, headers: Headers): boolean {
-  const secret = process.env.WHOP_WEBHOOK_SECRET;
-  if (!secret) {
-    console.warn('[whop-webhook] WHOP_WEBHOOK_SECRET is not set; skipping signature verification');
-    return true;
+const PLACEHOLDER_SECRETS = new Set(['whsec_testsecret', 'whsec_xxxxxxxxxxxx']);
+
+function verifySignature(rawBody: string, headers: Headers, secret: string): boolean {
+  if (PLACEHOLDER_SECRETS.has(secret)) {
+    console.warn(
+      '[whop-webhook] WHOP_WEBHOOK_SECRET looks like a placeholder; real Whop signatures will NOT verify. ' +
+        'Copy the real whsec_... secret from the Whop dashboard (Developer tab -> webhook) into the environment.'
+    );
   }
 
   const msgId = headers.get('webhook-id');
   const msgTimestamp = headers.get('webhook-timestamp');
   const msgSignature = headers.get('webhook-signature');
   if (!msgId || !msgTimestamp || !msgSignature) {
-    console.warn('[whop-webhook] missing signature headers');
+    console.warn('[whop-webhook] missing signature headers', {
+      'webhook-id': msgId,
+      'webhook-timestamp': msgTimestamp,
+      'webhook-signature': msgSignature,
+    });
     return false;
   }
 
   const timestamp = Number(msgTimestamp);
-  if (!Number.isFinite(timestamp)) return false;
-  if (Math.abs(Date.now() / 1000 - timestamp) > SIGNATURE_TOLERANCE_SECONDS) {
-    console.warn('[whop-webhook] webhook timestamp outside tolerance window');
+  if (!Number.isFinite(timestamp)) {
+    console.warn('[whop-webhook] invalid webhook-timestamp', msgTimestamp);
+    return false;
+  }
+  const nowSeconds = Date.now() / 1000;
+  if (nowSeconds - timestamp > SIGNATURE_TOLERANCE_SECONDS) {
+    console.warn('[whop-webhook] webhook timestamp is too old (replay?)');
+    return false;
+  }
+  if (timestamp - nowSeconds > SIGNATURE_TOLERANCE_SECONDS) {
+    console.warn('[whop-webhook] webhook timestamp is in the future (clock skew)');
     return false;
   }
 
-  const rawSecret = secret.startsWith(WHOP_SECRET_PREFIX)
-    ? secret.slice(WHOP_SECRET_PREFIX.length)
-    : secret;
-  const key = Buffer.from(`${rawSecret}==`, 'base64');
-  const signedContent = `${msgId}.${Math.floor(timestamp)}.${rawBody}`;
-  const expected = createHmac('sha256', key).update(signedContent, 'utf8').digest('base64');
+  // Standard Webhooks spec (Whop follows it):
+  //   key            = base64-decode of the part after "whsec_", or the raw UTF-8 bytes
+  //   signed_content = "{webhook-id}.{webhook-timestamp}.{raw body}"
+  //   signature      = base64(HMAC-SHA256(key, signed_content))
+  const key = secret.startsWith(WHOP_SECRET_PREFIX)
+    ? Buffer.from(secret.slice(WHOP_SECRET_PREFIX.length), 'base64')
+    : Buffer.from(secret, 'utf8');
 
-  const expectedBuffer = Buffer.from(expected);
-  for (const versionedSignature of msgSignature.split(' ')) {
-    const [version, signature] = versionedSignature.split(',');
-    if (version !== 'v1' || !signature) continue;
-    const receivedBuffer = Buffer.from(signature);
-    if (
+  const signedContent = `${msgId}.${msgTimestamp}.${rawBody}`;
+  const expectedSignature = createHmac('sha256', key)
+    .update(signedContent, 'utf8')
+    .digest('base64');
+
+  const receivedSignatures = msgSignature
+    .split(' ')
+    .map((part) => (part.startsWith('v1,') ? part.slice(3) : part))
+    .filter((part) => part.length > 0);
+
+  const matches = receivedSignatures.some((signature) => {
+    const expectedBuffer = Buffer.from(expectedSignature, 'ascii');
+    const receivedBuffer = Buffer.from(signature, 'ascii');
+    return (
       expectedBuffer.length === receivedBuffer.length &&
       timingSafeEqual(expectedBuffer, receivedBuffer)
-    ) {
-      return true;
-    }
+    );
+  });
+
+  if (!matches) {
+    console.warn('[whop-webhook] signature verification FAILED', {
+      'webhook-id': msgId,
+      'webhook-timestamp': msgTimestamp,
+      receivedSignature: msgSignature,
+      expectedSignature,
+      secretPrefix: secret.slice(0, 8),
+    });
   }
-  return false;
+
+  return matches;
 }
 
 function deepFind(value: unknown, keys: string[], maxDepth = 6): string {
@@ -245,9 +278,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'request body is empty' }, { status: 400 });
     }
 
-    if (!verifySignature(rawBody, request.headers)) {
-      return NextResponse.json({ error: 'invalid webhook signature' }, { status: 401 });
+    const secret = process.env.WHOP_WEBHOOK_SECRET;
+    if (!secret) {
+      console.error('[whop-webhook] WHOP_WEBHOOK_SECRET is not set');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
     }
+
+    console.log(
+      '[whop-webhook] incoming headers',
+      JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2)
+    );
+
+    if (!verifySignature(rawBody, request.headers, secret)) {
+      return NextResponse.json(
+        { error: 'invalid webhook signature' },
+        { status: 401 }
+      );
+    }
+
+    console.log('[whop-webhook] signature verified successfully');
 
     const webhookId = request.headers.get('webhook-id') ?? '';
     if (isDuplicate(webhookId)) {
