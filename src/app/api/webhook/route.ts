@@ -76,28 +76,35 @@ function verifySignature(rawBody: string, headers: Headers, secret: string): boo
   //   key            = base64-decode of the part after "whsec_", or the raw UTF-8 bytes
   //   signed_content = "{webhook-id}.{webhook-timestamp}.{raw body}"
   //   signature      = base64(HMAC-SHA256(key, signed_content))
-  const key = secret.startsWith(WHOP_SECRET_PREFIX)
-    ? Buffer.from(secret.slice(WHOP_SECRET_PREFIX.length), 'base64')
-    : Buffer.from(secret, 'utf8');
+  let matches = false;
+  let expectedSignature = '';
+  try {
+    const key = secret.startsWith(WHOP_SECRET_PREFIX)
+      ? Buffer.from(secret.slice(WHOP_SECRET_PREFIX.length), 'base64')
+      : Buffer.from(secret, 'utf8');
 
-  const signedContent = `${msgId}.${msgTimestamp}.${rawBody}`;
-  const expectedSignature = createHmac('sha256', key)
-    .update(signedContent, 'utf8')
-    .digest('base64');
+    const signedContent = `${msgId}.${msgTimestamp}.${rawBody}`;
+    expectedSignature = createHmac('sha256', key)
+      .update(signedContent, 'utf8')
+      .digest('base64');
 
-  const receivedSignatures = msgSignature
-    .split(' ')
-    .map((part) => (part.startsWith('v1,') ? part.slice(3) : part))
-    .filter((part) => part.length > 0);
+    const receivedSignatures = msgSignature
+      .split(' ')
+      .map((part) => (part.startsWith('v1,') ? part.slice(3) : part))
+      .filter((part) => part.length > 0);
 
-  const matches = receivedSignatures.some((signature) => {
-    const expectedBuffer = Buffer.from(expectedSignature, 'ascii');
-    const receivedBuffer = Buffer.from(signature, 'ascii');
-    return (
-      expectedBuffer.length === receivedBuffer.length &&
-      timingSafeEqual(expectedBuffer, receivedBuffer)
-    );
-  });
+    matches = receivedSignatures.some((signature) => {
+      const expectedBuffer = Buffer.from(expectedSignature, 'ascii');
+      const receivedBuffer = Buffer.from(signature, 'ascii');
+      return (
+        expectedBuffer.length === receivedBuffer.length &&
+        timingSafeEqual(expectedBuffer, receivedBuffer)
+      );
+    });
+  } catch (error) {
+    console.error('[whop-webhook] signature verification threw', error);
+    return false;
+  }
 
   if (!matches) {
     console.warn('[whop-webhook] signature verification FAILED', {
@@ -271,96 +278,108 @@ async function sendEmail(params: {
   return { id: result.id ?? '' };
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const rawBody = await request.text();
-    if (!rawBody.trim()) {
-      return NextResponse.json({ error: 'request body is empty' }, { status: 400 });
-    }
+async function handleEvent(rawBody: string, headers: Headers): Promise<void> {
+  const webhookId = headers.get('webhook-id') ?? '';
 
-    const secret = process.env.WHOP_WEBHOOK_SECRET;
-    if (!secret) {
-      console.error('[whop-webhook] WHOP_WEBHOOK_SECRET is not set');
-      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
-    }
-
-    console.log(
-      '[whop-webhook] incoming headers',
-      JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2)
-    );
-
-    if (!verifySignature(rawBody, request.headers, secret)) {
-      return NextResponse.json(
-        { error: 'invalid webhook signature' },
-        { status: 401 }
-      );
-    }
-
-    console.log('[whop-webhook] signature verified successfully');
-
-    const webhookId = request.headers.get('webhook-id') ?? '';
-    if (isDuplicate(webhookId)) {
-      return NextResponse.json({ success: true, duplicate: true });
-    }
-
-    let payload: unknown;
-    try {
-      payload = JSON.parse(rawBody);
-    } catch {
-      return NextResponse.json({ error: 'invalid JSON payload' }, { status: 400 });
-    }
-
-    const record = (payload ?? {}) as Record<string, unknown>;
-    const eventType = String(record.type ?? record.event ?? record.action ?? '');
-
-    if (!PAYMENT_SUCCEEDED_EVENTS.has(eventType)) {
-      console.log(`[whop-webhook] ignoring unhandled event: "${eventType}"`);
-      return NextResponse.json({ success: true, ignored: true, event: eventType });
-    }
-
-    const data = record.data as Record<string, unknown> | undefined;
-    const status = typeof data?.status === 'string' ? data.status.toLowerCase() : '';
-    if (status && !ACCEPTED_PAYMENT_STATUSES.has(status)) {
-      console.warn(`[whop-webhook] ignoring payment with status "${status}"`);
-      return NextResponse.json({
-        success: true,
-        ignored: true,
-        reason: 'payment not succeeded',
-      });
-    }
-
-    const customerEmail = extractEmail(payload);
-    if (!customerEmail) {
-      console.error('[whop-webhook] no customer email found in payload', JSON.stringify(payload));
-      return NextResponse.json({ error: 'customer email not found' }, { status: 400 });
-    }
-
-    const bookUrl = process.env.BOOK_DOWNLOAD_URL;
-    const excelUrl = process.env.EXCEL_BUNDLE_DOWNLOAD_URL;
-    if (!bookUrl || !excelUrl) {
-      console.error('[whop-webhook] BOOK_DOWNLOAD_URL or EXCEL_BUNDLE_DOWNLOAD_URL is not configured');
-      return NextResponse.json({ error: 'download URLs not configured' }, { status: 500 });
-    }
-
-    const product = process.env.PRODUCT_TITLE || 'حقيبة بقاء المطاعم 2026';
-    const { subject, html, text } = buildEmail({
-      name: extractName(payload),
-      product,
-      bookUrl,
-      excelUrl,
-    });
-
-    try {
-      const result = await sendEmail({ to: customerEmail, subject, html, text });
-      markProcessed(webhookId);
-      console.log(`[whop-webhook] delivery email sent to ${customerEmail} (${result.id})`);
-      return NextResponse.json({ success: true, email_id: result.id });
-    } catch (error) {
-      console.error('[whop-webhook] email delivery failed', error);
-      return NextResponse.json({ error: 'email delivery failed' }, { status: 500 });
-    }
-  } catch (error) {
-    console.error('[whop-webhook] unexpected error', error);
-    return NextResponse.json({ error: 'webhook processing failed' }, { status: 500 });
+  if (isDuplicate(webhookId)) {
+    console.log(`[whop-webhook] duplicate event "${webhookId}" ignored`);
+    return;
   }
+
+  let payload: unknown;
+  try {
+    payload = JSON.parse(rawBody);
+  } catch (error) {
+    console.error('[whop-webhook] invalid JSON payload', error);
+    return;
+  }
+
+  const record = (payload ?? {}) as Record<string, unknown>;
+  const eventType = String(record.type ?? record.event ?? record.action ?? '');
+
+  if (!PAYMENT_SUCCEEDED_EVENTS.has(eventType)) {
+    console.log(`[whop-webhook] ignoring unhandled event: "${eventType}"`);
+    return;
+  }
+
+  const data = record.data as Record<string, unknown> | undefined;
+  const status = typeof data?.status === 'string' ? data.status.toLowerCase() : '';
+  if (status && !ACCEPTED_PAYMENT_STATUSES.has(status)) {
+    console.warn(`[whop-webhook] ignoring payment with status "${status}"`);
+    return;
+  }
+
+  const customerEmail = extractEmail(payload);
+  if (!customerEmail) {
+    console.error('[whop-webhook] no customer email found in payload', JSON.stringify(payload));
+    return;
+  }
+
+  const bookUrl = process.env.BOOK_DOWNLOAD_URL;
+  const excelUrl = process.env.EXCEL_BUNDLE_DOWNLOAD_URL;
+  if (!bookUrl || !excelUrl) {
+    console.error('[whop-webhook] BOOK_DOWNLOAD_URL or EXCEL_BUNDLE_DOWNLOAD_URL is not configured');
+    return;
+  }
+
+  const product = process.env.PRODUCT_TITLE || 'حقيبة بقاء المطاعم 2026';
+  const { subject, html, text } = buildEmail({
+    name: extractName(payload),
+    product,
+    bookUrl,
+    excelUrl,
+  });
+
+  try {
+    const result = await sendEmail({ to: customerEmail, subject, html, text });
+    markProcessed(webhookId);
+    console.log(`[whop-webhook] delivery email sent to ${customerEmail} (${result.id})`);
+  } catch (error) {
+    console.error('[whop-webhook] email delivery failed', error);
+  }
+}
+
+export async function POST(request: NextRequest) {
+  let rawBody = '';
+  try {
+    rawBody = await request.text();
+  } catch (error) {
+    console.error('[whop-webhook] failed to read request body', error);
+    return NextResponse.json({ error: 'request body is empty' }, { status: 400 });
+  }
+
+  if (!rawBody.trim()) {
+    return NextResponse.json({ error: 'request body is empty' }, { status: 400 });
+  }
+
+  const secret = process.env.WHOP_WEBHOOK_SECRET;
+  if (!secret) {
+    console.error('[whop-webhook] WHOP_WEBHOOK_SECRET is not set');
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+  }
+
+  console.log(
+    '[whop-webhook] incoming headers',
+    JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2)
+  );
+
+  let verified = false;
+  try {
+    verified = verifySignature(rawBody, request.headers, secret);
+  } catch (error) {
+    console.error('[whop-webhook] signature verification crashed', error);
+  }
+  if (!verified) {
+    return NextResponse.json({ error: 'invalid webhook signature' }, { status: 401 });
+  }
+
+  console.log('[whop-webhook] signature verified successfully');
+
+  try {
+    await handleEvent(rawBody, request.headers);
+  } catch (error) {
+    console.error('[whop-webhook] event processing failed', error);
+  }
+
+  return NextResponse.json({ success: true }, { status: 200 });
 }
