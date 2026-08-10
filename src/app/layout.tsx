@@ -130,6 +130,20 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <head>
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-P718ZL46PE"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-P718ZL46PE');
+            `,
+          }}
+        />
         <link
           rel="preload"
           href="/fonts/GretaArabic-400.woff2"

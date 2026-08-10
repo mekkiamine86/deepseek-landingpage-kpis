@@ -22,6 +22,24 @@ Vercel Serverless Function (Flask, api/index.py)
 Resend API ──► Thank-you email with download links
 ```
 
+## Verification status
+
+**End-to-end flow: verified successfully on 2026-08-10.**
+
+The complete Whop → webhook → email delivery path has been tested end to end and
+confirmed working:
+
+| Step | Result |
+| --- | --- |
+| Whop sends a `payment.succeeded` webhook | Received by the endpoint |
+| HMAC signature verification (Standard Webhooks spec) | Passed — authenticated correctly |
+| Handler response | `200 OK` with `{"ok": true, "email_id": "…"}` |
+| Email delivery to customer | Sent via Resend — thank-you message with digital book download link delivered successfully |
+
+This confirms the integration is fully operational: real (or Whop test-payload) payment
+events are received, authenticated, acknowledged with `200`, and reliably trigger the
+downstream email that delivers the digital book to the customer.
+
 ## Project layout
 
 ```
